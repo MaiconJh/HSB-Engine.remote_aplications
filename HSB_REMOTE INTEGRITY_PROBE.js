@@ -1,14 +1,14 @@
-// HSB Integrity & Stress Probe v2.0
+// HSB Integrity Probe v2.1 (Anti-Fault Edition)
 export default {
   manifest: {
     identity: { 
       id: 'ext.stress.probe', 
       name: 'Integrity Stress Probe', 
-      version: '2.1.1', 
-      description: 'Nó de auditoria para teste de limites de barramento e isolamento.', 
+      version: '2.1.0', 
+      description: 'Audit node for bus stability testing.', 
       author: 'HSB_LABS' 
     },
-    permissions: ['event:emit', 'event:subscribe', 'cache:read', 'cache:write'],
+    permissions: ['event:emit', 'event:subscribe'],
     uiAreas: ['dashboard'],
     initOrder: 999,
     dependencies: [],
@@ -18,38 +18,22 @@ export default {
       id: 'main',
       label: 'Stress Monitor',
       component: ({ sdk }) => {
-        const [latency, setLatency] = React.useState(0);
-        const [isFlooding, setIsFlooding] = React.useState(false);
-
-        React.useEffect(() => {
-          // Teste de Latência Real (Ping-Pong)
+        // Usar o React global injetado
+        const [latency, setLatency] = window.React.useState(0);
+        
+        window.React.useEffect(() => {
           const unsub = sdk.subscribe('kernel:heartbeat', () => {
-             const start = performance.now();
-             sdk.emit('probe:ping', { ts: start });
+             sdk.emit('probe:ping', { ts: performance.now() });
           });
           const unsubPong = sdk.subscribe('probe:pong', (p) => setLatency(performance.now() - p.ts));
-          
           return () => { unsub(); unsubPong(); };
         }, [sdk]);
 
-        // Função de Stress (Signal Flood)
-        const triggerFlood = () => {
-          setIsFlooding(true);
-          for(let i=0; i<150; i++) { 
-             sdk.emit('probe:flood_packet', { i, data: Math.random() }); 
-          }
-          setTimeout(() => setIsFlooding(false), 1000);
-        };
-
-        return React.createElement('div', { className: "p-4 space-y-4 font-mono" },
-          React.createElement('div', { className: "flex justify-between" },
-            React.createElement('span', { className: "text-[10px] text-slate-500 uppercase" }, "Bus Latency"),
-            React.createElement('span', { className: "text-emerald-500 font-black" }, `${latency.toFixed(3)}ms`)
-          ),
-          React.createElement('button', { 
-            onClick: triggerFlood,
-            className: "w-full py-2 bg-rose-600 text-white font-black text-[10px] uppercase"
-          }, isFlooding ? "FLOODING..." : "TEST_SIGNAL_FLOOD")
+        return window.React.createElement('div', { className: "p-4 font-mono text-[10px]" },
+          window.React.createElement('div', { className: "flex justify-between" },
+            window.React.createElement('span', { className: "text-slate-500 uppercase" }, "Bus Latency"),
+            window.React.createElement('span', { className: "text-emerald-500 font-black" }, `${latency.toFixed(3)}ms`)
+          )
         );
       },
       audit: { purpose: 'Stress Test', systemImpact: 'HIGH', securityLevel: 'SANDBOXED', requiredPermissions: [] }
