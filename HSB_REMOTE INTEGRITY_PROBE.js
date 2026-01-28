@@ -4,7 +4,7 @@ export default {
     identity: { 
       id: 'ext.stress.probe', 
       name: 'Integrity Stress Probe', 
-      version: '2.0.0', 
+      version: '2.1.1', 
       description: 'Nó de auditoria para teste de limites de barramento e isolamento.', 
       author: 'HSB_LABS' 
     },
