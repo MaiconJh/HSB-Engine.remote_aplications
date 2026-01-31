@@ -82,6 +82,7 @@ const definition = {
     },
     permissions: ['event:subscribe', 'event:emit', 'telemetry:read'],
     uiAreas: ['dashboard'],
+    displayArea: 'System Core',
     pages: [{
       id: 'main',
       label: 'Network Monitor',
